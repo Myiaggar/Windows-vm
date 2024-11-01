@@ -1,37 +1,38 @@
-name: Windows VM Setup
+name: CRD Setup
 
 on:
   workflow_dispatch:
     inputs:
       code:
-        description: "Paste PowerShell Code"
+        description: Paste PowerShell Code
         required: true
-        default: "Write-Host 'Hello from GitHub Actions'"
 
 jobs:
   build:
-    name: Windows VM Running
+    name: Setup Chrome Remote Desktop
     runs-on: windows-latest
     timeout-minutes: 360
 
     steps:
-      - name: Install Chrome Remote Desktop
-        run: |
-          Invoke-WebRequest -Uri "https://dl.google.com/dl/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi" -OutFile "$env:TEMP\\chrome-remote-desktop.msi"
-          Start-Process -FilePath "$env:TEMP\\chrome-remote-desktop.msi" -ArgumentList '/silent', '/install' -Wait
+    - name: Install Chrome Remote Desktop
+      run: |
+        # Define the download URL for Chrome Remote Desktop
+        $crdUrl = "https://dl.google.com/remote/hosted/downloads/chrome_remote_desktop_86.0.4240.111.exe"
+        # Download and install Chrome Remote Desktop
+        Invoke-WebRequest -Uri $crdUrl -OutFile "chrome_remote_desktop.exe"
+        Start-Process "chrome_remote_desktop.exe" -ArgumentList "/silent" -Wait
 
-      - name: Execute PowerShell Code
-        run: |
-          # CONNECTING WITH VM
-          $Code = "${{ inputs.code }}"
-          Invoke-Expression $Code
+    - name: Run Custom PowerShell Code
+      run: |
+        # Run the custom PowerShell code provided by the user
+        $code = "${{ inputs.code }}"
+        Invoke-Expression $code
+      shell: powershell
 
-      - name: Keep VM Running
-        run: |
-          # Keep VM alive
-          $i = 360
-          do {
-              Write-Host $i
-              Start-Sleep -Seconds 60
-              $i--
-          } while ($i -gt 0)
+    - name: Keep VM Running
+      run: |
+        # Keeps the workflow running for 6 hours (360 minutes)
+        for ($i = 360; $i -gt 0; $i--) {
+          Write-Host "VM running for $i more minutes"
+          Start-Sleep -Seconds 60
+        }
