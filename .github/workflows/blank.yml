@@ -15,24 +15,32 @@ jobs:
     timeout-minutes: 360
 
     steps:
-      - name: Download Chrome Remote Desktop
+      - name: Download and Install Chrome Remote Desktop
         run: |
-          # Download Chrome Remote Desktop installer
-          Invoke-WebRequest -Uri "https://dl.google.com/chrome-remote-desktop/chrome_remote_desktop.msi" -OutFile "chrome_remote_desktop.msi"
-      
-      - name: Install Chrome Remote Desktop
-        run: |
+          # Download the Chrome Remote Desktop installer
+          $url = "https://dl.google.com/dl/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi"
+          $output = "ChromeRemoteDesktop.msi"
+
+          # Download the installer with error handling
+          try {
+              Invoke-WebRequest -Uri $url -OutFile $output -ErrorAction Stop
+              Write-Host "Chrome Remote Desktop installer downloaded successfully."
+          } catch {
+              Write-Host "Failed to download Chrome Remote Desktop installer."
+              exit 1
+          }
+
           # Install Chrome Remote Desktop silently
-          Start-Process "msiexec.exe" -ArgumentList "/i chrome_remote_desktop.msi /quiet /norestart" -NoNewWindow -Wait
+          Start-Process msiexec.exe -ArgumentList "/i $output /quiet /norestart" -NoNewWindow -Wait
+          Write-Host "Chrome Remote Desktop installed successfully."
 
       - name: Executing PowerShell Code
         run: |
           # Define the path to the executable
           $executablePath = "$($Env:PROGRAMFILES(X86))\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe"
 
-          # Check if the executable exists
+          # Check if the executable exists and run the provided code
           if (Test-Path $executablePath) {
-              # Execute the command with the provided code
               & "$executablePath" --code="${{ inputs.code }}"
           } else {
               Write-Host "Executable not found: $executablePath"
@@ -41,10 +49,10 @@ jobs:
 
       - name: Keep VM Running
         run: |
-          # Go And Connect Now!
+          # Keeps the VM running for remote access
           $i = 360
           do {
-              Write-Host $i
-              Sleep 60
+              Write-Host "VM running. Time left: $i minutes"
+              Start-Sleep -Seconds 60
               $i--
           } while ($i -gt 0)
