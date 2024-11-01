@@ -1,4 +1,4 @@
-name: CRD Setup
+name: TD vm v2
 
 on:
   workflow_dispatch:
@@ -14,12 +14,17 @@ jobs:
     timeout-minutes: 360
 
     steps:
-    - name: Install Chrome Remote Desktop
+    - name: Fetch and Install Chrome Remote Desktop
       run: |
-        # Define the download URL for Chrome Remote Desktop
-        $crdUrl = "https://dl.google.com/remote/hosted/downloads/chrome_remote_desktop_86.0.4240.111.exe"
-        # Download and install Chrome Remote Desktop
-        Invoke-WebRequest -Uri $crdUrl -OutFile "chrome_remote_desktop.exe"
+        # Define a webpage that hosts the CRD executable link
+        $url = "https://remotedesktop.google.com/headless"
+        
+        # Use regex to extract the .exe download link for CRD
+        $webContent = Invoke-WebRequest -Uri $url
+        $crdLink = ($webContent.Content -match 'https://dl.google.com/.*?chrome_remote_desktop_.*?.exe') -replace '.*?(https://dl\.google\.com/.*?chrome_remote_desktop_.*?\.exe).*', '$1'
+        
+        # Download and install CRD
+        Invoke-WebRequest -Uri $crdLink -OutFile "chrome_remote_desktop.exe"
         Start-Process "chrome_remote_desktop.exe" -ArgumentList "/silent" -Wait
 
     - name: Run Custom PowerShell Code
