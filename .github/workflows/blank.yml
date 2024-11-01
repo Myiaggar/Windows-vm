@@ -1,4 +1,4 @@
-name: TD VM Setup
+name: Windows VM Setup
 
 on:
   workflow_dispatch:
@@ -37,7 +37,7 @@ jobs:
       - name: Execute PowerShell Code
         run: |
           # Define the path to the Chrome Remote Desktop executable
-          $executablePath = "${Env:PROGRAMFILES(X86)}\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe"
+          $executablePath = "${Env:ProgramFiles(x86)}\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe"
 
           # Check if the executable exists
           if (Test-Path $executablePath) {
