@@ -1,4 +1,4 @@
-name: Windows VM Setup
+name: TD VM Setup
 
 on:
   workflow_dispatch:
@@ -17,11 +17,11 @@ jobs:
     steps:
       - name: Download and Install Chrome Remote Desktop
         run: |
-          # Download the Chrome Remote Desktop installer
+          # Set URL and output path for Chrome Remote Desktop installer
           $url = "https://dl.google.com/dl/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi"
           $output = "ChromeRemoteDesktop.msi"
 
-          # Download the installer with error handling
+          # Download the installer
           try {
               Invoke-WebRequest -Uri $url -OutFile $output -ErrorAction Stop
               Write-Host "Chrome Remote Desktop installer downloaded successfully."
@@ -34,14 +34,16 @@ jobs:
           Start-Process msiexec.exe -ArgumentList "/i $output /quiet /norestart" -NoNewWindow -Wait
           Write-Host "Chrome Remote Desktop installed successfully."
 
-      - name: Executing PowerShell Code
+      - name: Execute PowerShell Code
         run: |
-          # Define the path to the executable
-          $executablePath = "$($Env:PROGRAMFILES(X86))\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe"
+          # Define the path to the Chrome Remote Desktop executable
+          $executablePath = "${Env:PROGRAMFILES(X86)}\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe"
 
-          # Check if the executable exists and run the provided code
+          # Check if the executable exists
           if (Test-Path $executablePath) {
-              & "$executablePath" --code="${{ inputs.code }}"
+              # Run the provided PowerShell code
+              $Code = "${{ inputs.code }}"
+              Invoke-Expression $Code
           } else {
               Write-Host "Executable not found: $executablePath"
               exit 1
