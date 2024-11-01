@@ -1,4 +1,4 @@
-name: TD vm v2
+name: TD vm v3
 
 on:
   workflow_dispatch:
@@ -14,25 +14,28 @@ jobs:
 
     steps:
       - name: Download Chrome Remote Desktop Installer
+        shell: powershell
         run: |
           # Download from the provided Google Drive link
           $url = "https://drive.google.com/uc?export=download&id=1Iz3sNhl_5OwCzgmnXIQQtAoKSSxPBLJT"
           Invoke-WebRequest -Uri $url -OutFile "chrome_remote_desktop.msi"
         
       - name: Install Chrome Remote Desktop
+        shell: powershell
         run: |
           # Silent install for .msi installer
           Start-Process msiexec.exe -ArgumentList "/i chrome_remote_desktop.msi /quiet /norestart" -NoNewWindow -Wait
           Write-Host "Chrome Remote Desktop installed successfully."
 
       - name: Run Custom PowerShell Code
+        shell: powershell
         run: |
           # Run custom PowerShell code provided by the user
           $code = "${{ inputs.code }}"
           Invoke-Expression $code
-      shell: powershell
 
       - name: Keep VM Running
+        shell: powershell
         run: |
           # Keeps the workflow running for 6 hours
           for ($i = 360; $i -gt 0; $i--) {
