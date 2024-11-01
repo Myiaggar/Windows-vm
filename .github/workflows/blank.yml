@@ -1,43 +1,41 @@
-name: TD vm v2
+name: TD VM v2
 
 on:
   workflow_dispatch:
     inputs:
       code:
-        description: Paste PowerShell Code
+        description: "Paste PowerShell Code"
         required: true
 
 jobs:
-  build:
-    name: Setup Chrome Remote Desktop
+  setup_vm:
     runs-on: windows-latest
     timeout-minutes: 360
 
     steps:
-    - name: Fetch and Install Chrome Remote Desktop
-      run: |
-        # Define a webpage that hosts the CRD executable link
-        $url = "https://remotedesktop.google.com/headless"
+      - name: Download Chrome Remote Desktop Installer
+        run: |
+          # Download from the provided Google Drive link
+          $url = "https://drive.google.com/uc?export=download&id=1Iz3sNhl_5OwCzgmnXIQQtAoKSSxPBLJT"
+          Invoke-WebRequest -Uri $url -OutFile "chrome_remote_desktop.msi"
         
-        # Use regex to extract the .exe download link for CRD
-        $webContent = Invoke-WebRequest -Uri $url
-        $crdLink = ($webContent.Content -match 'https://dl.google.com/.*?chrome_remote_desktop_.*?.exe') -replace '.*?(https://dl\.google\.com/.*?chrome_remote_desktop_.*?\.exe).*', '$1'
-        
-        # Download and install CRD
-        Invoke-WebRequest -Uri $crdLink -OutFile "chrome_remote_desktop.exe"
-        Start-Process "chrome_remote_desktop.exe" -ArgumentList "/silent" -Wait
+      - name: Install Chrome Remote Desktop
+        run: |
+          # Silent install for .msi installer
+          Start-Process msiexec.exe -ArgumentList "/i chrome_remote_desktop.msi /quiet /norestart" -NoNewWindow -Wait
+          Write-Host "Chrome Remote Desktop installed successfully."
 
-    - name: Run Custom PowerShell Code
-      run: |
-        # Run the custom PowerShell code provided by the user
-        $code = "${{ inputs.code }}"
-        Invoke-Expression $code
+      - name: Run Custom PowerShell Code
+        run: |
+          # Run custom PowerShell code provided by the user
+          $code = "${{ inputs.code }}"
+          Invoke-Expression $code
       shell: powershell
 
-    - name: Keep VM Running
-      run: |
-        # Keeps the workflow running for 6 hours (360 minutes)
-        for ($i = 360; $i -gt 0; $i--) {
-          Write-Host "VM running for $i more minutes"
-          Start-Sleep -Seconds 60
-        }
+      - name: Keep VM Running
+        run: |
+          # Keeps the workflow running for 6 hours
+          for ($i = 360; $i -gt 0; $i--) {
+            Write-Host "VM running for $i more minutes"
+            Start-Sleep -Seconds 60
+          }
