@@ -17,8 +17,8 @@ jobs:
     steps:
       - name: Install Chrome Remote Desktop
         run: |
-          Invoke-WebRequest -Uri "https://dl.google.com/chrome-remote-desktop/chrome-remote-desktop_current.exe" -OutFile "$env:TEMP\\chrome-remote-desktop.exe"
-          Start-Process -FilePath "$env:TEMP\\chrome-remote-desktop.exe" -ArgumentList '/silent', '/install' -Wait
+          Invoke-WebRequest -Uri "https://dl.google.com/dl/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi" -OutFile "$env:TEMP\\chrome-remote-desktop.msi"
+          Start-Process -FilePath "$env:TEMP\\chrome-remote-desktop.msi" -ArgumentList '/silent', '/install' -Wait
 
       - name: Execute PowerShell Code
         run: |
