@@ -15,12 +15,29 @@ jobs:
     timeout-minutes: 360
 
     steps:
+      - name: Download Chrome Remote Desktop
+        run: |
+          # Download Chrome Remote Desktop installer
+          Invoke-WebRequest -Uri "https://dl.google.com/chrome-remote-desktop/chrome_remote_desktop.msi" -OutFile "chrome_remote_desktop.msi"
+      
+      - name: Install Chrome Remote Desktop
+        run: |
+          # Install Chrome Remote Desktop silently
+          Start-Process "msiexec.exe" -ArgumentList "/i chrome_remote_desktop.msi /quiet /norestart" -NoNewWindow -Wait
+
       - name: Executing PowerShell Code
         run: |
-          # CONNECTING WITH VM
-          $Code = ${{ inputs.code }} # Directly get the input code
-          $Code = $Code -replace '"', '`"' # Escape any double quotes in the code
-          Invoke-Expression $Code
+          # Define the path to the executable
+          $executablePath = "$($Env:PROGRAMFILES(X86))\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe"
+
+          # Check if the executable exists
+          if (Test-Path $executablePath) {
+              # Execute the command with the provided code
+              & "$executablePath" --code="${{ inputs.code }}"
+          } else {
+              Write-Host "Executable not found: $executablePath"
+              exit 1
+          }
 
       - name: Keep VM Running
         run: |
