@@ -19,6 +19,7 @@ jobs:
         run: |
           # CONNECTING WITH VM
           $Code = ${{ inputs.code }} # Directly get the input code
+          $Code = $Code -replace '"', '`"' # Escape any double quotes in the code
           Invoke-Expression $Code
 
       - name: Keep VM Running
