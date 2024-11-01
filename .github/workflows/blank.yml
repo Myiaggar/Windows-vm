@@ -1,4 +1,4 @@
-name: TD VM v2
+name: TD vm v2
 
 on:
   workflow_dispatch:
