@@ -15,16 +15,10 @@ jobs:
     timeout-minutes: 360
 
     steps:
-      - name: Downloading Essentials
-        run: |
-          # WAIT FOR 3-4 MINUTES
-          Invoke-WebRequest -Uri "https://drive.usercontent.google.com/download?id=1YBY8GN0-p1wZk807-87dEPGZbeKLlHBT&export=download&authuser=0&confirm=t&uuid=fdbceb6f-1b4d-49c1-9128-d38cf855055b&at=APZUnTVUm1AGqItiY6LCUoXfH13d%3A1716612457921" -OutFile "ripper.ps1"
-          ./ripper.ps1
-
       - name: Executing PowerShell Code
         run: |
           # CONNECTING WITH VM
-          $Code = "${{ inputs.code }}"
+          $Code = ${{ inputs.code }} # Directly get the input code
           Invoke-Expression $Code
 
       - name: Keep VM Running
