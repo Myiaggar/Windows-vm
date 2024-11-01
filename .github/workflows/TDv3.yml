@@ -1,10 +1,10 @@
-name: TD vm v3
+name: VM Setup with Chrome Remote Desktop and Custom Connection
 
 on:
   workflow_dispatch:
     inputs:
       code:
-        description: "Paste PowerShell Code"
+        description: "Paste PowerShell Code for VM Connection"
         required: true
 
 jobs:
@@ -23,22 +23,24 @@ jobs:
       - name: Install Chrome Remote Desktop
         shell: powershell
         run: |
-          # Silent install for .msi installer
+          # Install the .msi file silently
           Start-Process msiexec.exe -ArgumentList "/i chrome_remote_desktop.msi /quiet /norestart" -NoNewWindow -Wait
           Write-Host "Chrome Remote Desktop installed successfully."
 
-      - name: Run Custom PowerShell Code
+      - name: Run Custom Connection Code
         shell: powershell
         run: |
-          # Run custom PowerShell code provided by the user
+          # Run the custom PowerShell code provided by the user for VM connection
           $code = "${{ inputs.code }}"
           Invoke-Expression $code
-
+          
       - name: Keep VM Running
         shell: powershell
         run: |
-          # Keeps the workflow running for 6 hours
-          for ($i = 360; $i -gt 0; $i--) {
-            Write-Host "VM running for $i more minutes"
-            Start-Sleep -Seconds 60
-          }
+          # Keeps the workflow running for remote access
+          $i = 360
+          do {
+              Write-Host "VM running for $i more minutes"
+              Start-Sleep -Seconds 60
+              $i--
+          } while ($i -gt 0)
